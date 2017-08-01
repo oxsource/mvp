@@ -1,0 +1,56 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+
+allprojects {
+    repositories {
+        jcenter()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:support-v4:25.1.0'
+    //RxAndroid
+    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    //HTTP
+    compile 'com.squareup.okhttp3:okhttp:3.8.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:retrofit-converters:2.3.0'
+    compile 'com.squareup.retrofit2:retrofit-adapters:2.3.0'
+    //SERIALIZATION
+    compile 'org.ligboy.retrofit2:converter-fastjson-android:2.1.0'
+    //EVENT BUS3.0
+    compile 'org.greenrobot:eventbus:3.0.0'
+    //Android Signature V2 Scheme channel
+    compile 'com.meituan.android.walle:library:1.1.1'
+    //MULTI DEX
+    compile 'com.android.support:multidex:1.0.0'
+    compile 'com.github.oxsource:mvp-annotation:1.0.1'
+}
