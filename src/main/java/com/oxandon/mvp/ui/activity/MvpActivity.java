@@ -33,7 +33,6 @@ public abstract class MvpActivity extends FragmentActivity implements IActivity 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        overridePendingTransition(0, 0);
         layout = onInflateLayout(LayoutInflater.from(getBaseContext()), null, savedInstanceState);
         setContentView(layout);
         iHintView = onBuildHintView();
@@ -106,12 +105,6 @@ public abstract class MvpActivity extends FragmentActivity implements IActivity 
             }
         }
         super.onBackPressed();
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(0, 0);
     }
 
     @Override
