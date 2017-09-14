@@ -47,8 +47,13 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
         if (null != MvpSdk.dispatcher()) {
             MvpSdk.dispatcher().attach(this);
         }
-        onInitViews(savedInstanceState);
         return layout;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        onInitViews(savedInstanceState);
     }
 
     protected FragmentVisibility visibility() {
