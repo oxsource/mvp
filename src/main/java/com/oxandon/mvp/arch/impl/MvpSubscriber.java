@@ -47,9 +47,9 @@ public class MvpSubscriber<T> extends DisposableSubscriber<T> {
     @Override
     public void onError(Throwable t) {
         sendFinishMsg();
-        String text = t.getMessage();
-        if (TextUtils.isEmpty(text)) {
-            text = defaultErrorMsg();
+        String text = defaultErrorMsg();
+        if (null != t && !TextUtils.isEmpty(t.getMessage())) {
+            text = t.getMessage();
         }
         MvpMessage.Builder builder = new MvpMessage.Builder();
         builder.reverse(message()).what(IMvpMessage.WHAT_FAILURE).msg(text).obj(t);
