@@ -32,7 +32,7 @@ public abstract class HttpPresenter extends MvpPresenter {
     public boolean onIntercept(IMvpMessage msg) throws Exception {
         if (needCheckNetwork() && NetworkUtil.getNetworkType() == NetworkUtil.NETWORK_NONE) {
             MvpMessage.Builder builder = new MvpMessage.Builder();
-            builder.reverse(msg).what(IMvpMessage.WHAT_FAILURE);
+            builder.clone(msg).what(IMvpMessage.WHAT_FAILURE);
             builder.obj(NetworkUtil.class).msg("无法连接网络");
             dispatcher().dispatchToView(builder.build());
             return true;

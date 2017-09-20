@@ -9,7 +9,6 @@ import com.oxandon.mvp.arch.protocol.IMvpDispatcher;
 import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpPresenter;
 import com.oxandon.mvp.arch.protocol.IMvpUri;
-import com.oxandon.mvp.env.FoundEnvironment;
 import com.oxandon.mvp.except.CheckArgumentException;
 import com.oxandon.mvp.log.FoundLog;
 
@@ -114,9 +113,7 @@ public class MvpPresenter implements IMvpPresenter {
     }
 
     protected IMvpMessage reverse(IMvpMessage msg) {
-        MvpMessage.Builder builder = new MvpMessage.Builder();
-        builder.reverse(msg).what(msg.what()).obj(msg.obj()).msg(msg.msg());
-        return builder.build();
+        return msg;
     }
 
     protected <T> void doRxSubscribe(@NonNull Flowable<T> flow, @NonNull DisposableSubscriber<T> subscriber) {
@@ -127,28 +124,7 @@ public class MvpPresenter implements IMvpPresenter {
     protected void catchException(IMvpMessage msg, String text) {
         MvpMessage.Builder builder = new MvpMessage.Builder();
         builder.to(msg.from()).what(IMvpMessage.WHAT_FAILURE).msg(text);
-        dispatchToView(builder.build());
-    }
-
-    public Object provideFromView(IMvpMessage msg) {
-        Object obj = null;
-        try {
-            obj = dispatcher().provideFromView(reverse(msg));
-        } catch (Exception e) {
-            e.printStackTrace();
-            FoundEnvironment.bug(e);
-        }
-        return null == obj ? new Object() : obj;
-    }
-
-    public boolean dispatchToView(IMvpMessage msg) {
-        try {
-            return dispatcher().dispatchToView(msg);
-        } catch (Exception e) {
-            e.printStackTrace();
-            FoundEnvironment.bug(e);
-        }
-        return false;
+        dispatcher().dispatchToView(builder.build());
     }
 
     /**

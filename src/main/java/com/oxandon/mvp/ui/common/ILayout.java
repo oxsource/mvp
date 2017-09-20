@@ -30,13 +30,6 @@ public interface ILayout {
     ViewGroup onInflateLayout(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
 
     /**
-     * 视图初始化
-     *
-     * @param savedInstanceState
-     */
-    void onInitViews(@Nullable Bundle savedInstanceState);
-
-    /**
      * 构建HintView
      *
      * @return

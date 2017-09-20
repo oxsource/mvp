@@ -38,6 +38,18 @@ public class MvpEvent {
         EventBus.getDefault().post(builder.build());
     }
 
+    /**
+     * 异常广播
+     *
+     * @param msg
+     * @param e
+     */
+    public static void exceptCast(IMvpMessage msg, Exception e) {
+        FoundEnvironment.bug(e);
+        IMvpMessage except = new MvpMessage.Builder().clone(msg).obj(e).build();
+        EventBus.getDefault().post(except);
+    }
+
     public static boolean singleCast(IMvpMessage message, @NonNull String authority) {
         if (null == message || null == message.to()) {
             return false;

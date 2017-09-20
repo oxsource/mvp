@@ -5,11 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
 import com.meituan.android.walle.WalleChannelReader;
 import com.oxandon.mvp.log.FoundLog;
-import com.oxandon.mvp.log.MvpLogHandler;
+import com.oxandon.mvp.log.MvpBugHandler;
 
 /**
  * Created by peng on 2017/5/20.
@@ -19,7 +18,7 @@ public class FoundEnvironment {
     private static Application application;
     private static String nameOfEnvironment;
     private static boolean isDebug;
-    private static MvpLogHandler logHandler;
+    private static MvpBugHandler bugHandler;
 
     /**
      * 注入应用程序
@@ -122,8 +121,8 @@ public class FoundEnvironment {
      *
      * @param handler
      */
-    public static void setLogHandler(MvpLogHandler handler) {
-        logHandler = handler;
+    public static void setBugHandler(MvpBugHandler handler) {
+        bugHandler = handler;
     }
 
     //检查是否存在指定包名
@@ -141,21 +140,10 @@ public class FoundEnvironment {
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    public static void log(String log) {
-        if (null != logHandler) {
-            logHandler.log(log);
-        }
-    }
 
     public static void bug(Exception e) {
-        String error = "程序运行异常";
-        if (null != e) {
-            error = e.getMessage();
+        if (null != bugHandler) {
+            bugHandler.bug(e);
         }
-        Toast.makeText(FoundEnvironment.getApplication(), error, Toast.LENGTH_SHORT).show();
-        if (null != logHandler) {
-            logHandler.bug(e);
-        }
-        FoundEnvironment.destroy();
     }
 }

@@ -6,7 +6,7 @@ import android.text.TextUtils;
 
 import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpView;
-import com.oxandon.mvp.env.FoundEnvironment;
+import com.oxandon.mvp.env.MvpEvent;
 
 import io.reactivex.subscribers.DisposableSubscriber;
 
@@ -34,11 +34,11 @@ public class MvpSubscriber<T> extends DisposableSubscriber<T> {
     protected void onStart() {
         super.onStart();
         MvpMessage.Builder builder = new MvpMessage.Builder();
-        IMvpMessage msg = builder.reverse(message()).what(IMvpMessage.WHAT_START).build();
+        IMvpMessage msg = builder.clone(message()).what(IMvpMessage.WHAT_START).build();
         try {
             presenter().dispatcher().dispatchToView(msg);
         } catch (Exception e) {
-            FoundEnvironment.bug(e);
+            MvpEvent.exceptCast(msg, e);
         }
     }
 
@@ -57,12 +57,8 @@ public class MvpSubscriber<T> extends DisposableSubscriber<T> {
             text = t.getMessage();
         }
         MvpMessage.Builder builder = new MvpMessage.Builder();
-        builder.reverse(message()).what(IMvpMessage.WHAT_FAILURE).msg(text).obj(t);
-        try {
-            presenter().dispatcher().dispatchToView(builder.build());
-        } catch (Exception e) {
-            FoundEnvironment.bug(e);
-        }
+        builder.clone(message()).what(IMvpMessage.WHAT_FAILURE).msg(text).obj(t);
+        presenter().dispatcher().dispatchToView(builder.build());
         doFinishedWork();
     }
 
@@ -73,18 +69,23 @@ public class MvpSubscriber<T> extends DisposableSubscriber<T> {
 
     private void sendFinishMsg() {
         MvpMessage.Builder builder = new MvpMessage.Builder();
-        IMvpMessage msg = builder.reverse(message()).what(IMvpMessage.WHAT_FINISH).build();
+        IMvpMessage msg = builder.clone(message()).what(IMvpMessage.WHAT_FINISH).build();
         try {
             presenter().dispatcher().dispatchToView(msg);
         } catch (Exception e) {
-            FoundEnvironment.bug(e);
+            MvpEvent.exceptCast(msg, e);
         }
     }
 
     protected void doFinishedWork() {
-        presenter().removeTask(message());
-        message = null;
-        presenter = null;
+        IMvpMessage msg = message();
+        try {
+            presenter().removeTask(message());
+            message = null;
+            presenter = null;
+        } catch (Exception e) {
+            MvpEvent.exceptCast(msg, e);
+        }
     }
 
     protected String defaultErrorMsg() {

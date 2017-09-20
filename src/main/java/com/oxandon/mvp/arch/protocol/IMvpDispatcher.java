@@ -34,7 +34,7 @@ public interface IMvpDispatcher extends IMvp {
      * @param msg
      * @return
      */
-    boolean dispatchToView(IMvpMessage msg) throws Exception;
+    boolean dispatchToView(IMvpMessage msg);
 
     /**
      * 从View层获取数据
@@ -42,5 +42,5 @@ public interface IMvpDispatcher extends IMvp {
      * @param msg
      * @return
      */
-    Object provideFromView(IMvpMessage msg) throws Exception;
+    Object provideFromView(IMvpMessage msg);
 }

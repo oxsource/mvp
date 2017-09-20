@@ -36,10 +36,14 @@ public abstract class MvpActivity extends FragmentActivity implements IActivity 
         layout = onInflateLayout(LayoutInflater.from(getBaseContext()), null, savedInstanceState);
         setContentView(layout);
         iHintView = onBuildHintView();
-        onInitViews(savedInstanceState);
+        onViewCreated(savedInstanceState);
         if (null != getEventBus()) {
             getEventBus().register(this);
         }
+    }
+
+    protected void onViewCreated(@Nullable Bundle savedInstanceState) {
+
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.oxandon.mvp.arch.protocol.IMvpDispatcher;
 import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpPresenter;
 import com.oxandon.mvp.arch.protocol.IMvpView;
+import com.oxandon.mvp.env.MvpEvent;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
@@ -71,12 +72,12 @@ public class MvpDispatcher implements IMvpDispatcher {
         //验证View是否存在
         WeakReference<IMvpView> reference = views.get(viewKey);
         if (null == reference || null == reference.get()) {
-            throw new IllegalStateException("view is null");
+            throw new IllegalStateException("view is null:" + viewKey);
         }
         String presenterKey = msg.to().authority();
         Class<? extends IMvpPresenter> clazz = services.get(presenterKey);
         if (null == clazz) {
-            throw new IllegalStateException("presenter is null");
+            throw new IllegalStateException("presenter is null:" + presenterKey);
         }
         List<IMvpPresenter> list = presenters.get(viewKey);
         list = null == list ? new ArrayList<IMvpPresenter>() : list;
@@ -97,25 +98,37 @@ public class MvpDispatcher implements IMvpDispatcher {
     }
 
     @Override
-    public boolean dispatchToView(IMvpMessage msg) throws Exception {
-        String viewKey = msg.to().authority();
-        WeakReference<IMvpView> reference = views.get(viewKey);
-        if (null == reference || null == reference.get()) {
-            throw new IllegalStateException("view is null");
+    public boolean dispatchToView(IMvpMessage msg) {
+        try {
+            String viewKey = msg.from().authority();
+            WeakReference<IMvpView> reference = views.get(viewKey);
+            if (null == reference || null == reference.get()) {
+                throw new IllegalStateException("view is null:" + viewKey);
+            }
+            IMvpView view = reference.get();
+            return view.dispatch(msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+            MvpEvent.exceptCast(msg, e);
         }
-        IMvpView view = reference.get();
-        return view.dispatch(msg);
+        return false;
     }
 
     @Override
-    public Object provideFromView(IMvpMessage msg) throws Exception {
-        String viewKey = msg.to().authority();
-        WeakReference<IMvpView> reference = views.get(viewKey);
-        if (null == reference || null == reference.get()) {
-            throw new IllegalStateException("view is null");
+    public Object provideFromView(IMvpMessage msg) {
+        Object obj = null;
+        try {
+            String viewKey = msg.from().authority();
+            WeakReference<IMvpView> reference = views.get(viewKey);
+            if (null == reference || null == reference.get()) {
+                throw new IllegalStateException("view is null:" + viewKey);
+            }
+            IMvpView view = reference.get();
+            obj = view.provide(msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+            MvpEvent.exceptCast(msg, e);
         }
-        IMvpView view = reference.get();
-        Object obj = view.provide(msg);
         return null == obj ? new Object() : obj;
     }
 

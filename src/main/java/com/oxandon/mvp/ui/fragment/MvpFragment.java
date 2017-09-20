@@ -13,12 +13,14 @@ import com.oxandon.mvp.arch.impl.MvpMessage;
 import com.oxandon.mvp.arch.impl.MvpSdk;
 import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpView;
-import com.oxandon.mvp.env.FoundEnvironment;
+import com.oxandon.mvp.env.MvpEvent;
 import com.oxandon.mvp.ui.activity.MvpActivity;
 import com.oxandon.mvp.ui.widget.AlertTemple;
 import com.oxandon.mvp.ui.widget.IHintView;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Created by peng on 2017/5/22.
@@ -36,9 +38,7 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
         iHintView = onBuildHintView();
         visibility().onCreate(savedInstanceState);
         getFoundActivity().addToInterceptor(this);
-        if (null != getEventBus()) {
-            getEventBus().register(this);
-        }
+        getEventBus().register(this);
     }
 
     @Nullable
@@ -49,12 +49,6 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
             MvpSdk.dispatcher().attach(this);
         }
         return layout;
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        onInitViews(savedInstanceState);
     }
 
     protected FragmentVisibility visibility() {
@@ -157,9 +151,7 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
     public void onDestroy() {
         getFoundActivity().removeFromInterceptor(this);
         visibility().destroy();
-        if (null != getEventBus()) {
-            getEventBus().unregister(this);
-        }
+        getEventBus().unregister(this);
         super.onDestroy();
     }
 
@@ -171,15 +163,9 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
             boolean success = MvpSdk.dispatcher().dispatchToPresenter(msg);
             if (!success) throw new IllegalAccessException("请求出错");
         } catch (Exception e) {
-            builder = new MvpMessage.Builder().clone(msg).msg(e.getMessage());
             e.printStackTrace();
-        }
-        if (null != builder) {
-            IMvpMessage failure = builder.build();
-            FoundEnvironment.log(failure.msg());
-            String path = failure.from().path();
-            onMvpFinish(failure, path);
-            onMvpFailure(failure, path);
+            builder = new MvpMessage.Builder().clone(msg).msg(e.getMessage());
+            MvpEvent.exceptCast(builder.build(), e);
         }
         return null == builder;
     }
@@ -244,14 +230,24 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
             @Override
             public void onClick(View v) {
                 MvpMessage.Builder builder = new MvpMessage.Builder();
-                function(builder.reverse(msg).build());
+                function(builder.clone(msg).build());
             }
         });
         getHintView().showAlert(alert, false);
     }
 
-    protected EventBus getEventBus() {
-        return null;
+    protected final EventBus getEventBus() {
+        return EventBus.getDefault();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    @CallSuper
+    public void onEventBus(IMvpMessage msg) {
+        if (msg.obj() instanceof Exception) {
+            String path = msg.to().path();
+            onMvpFinish(msg, path);
+            onMvpFailure(msg, path);
+        }
     }
 
     protected final MvpActivity getFoundActivity() {
