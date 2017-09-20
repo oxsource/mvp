@@ -10,7 +10,6 @@ import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpPresenter;
 import com.oxandon.mvp.arch.protocol.IMvpUri;
 import com.oxandon.mvp.except.CheckArgumentException;
-import com.oxandon.mvp.log.FoundLog;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class MvpPresenter implements IMvpPresenter {
         String path = msg.to().path();
         boolean repeat = tasking.contains(path);
         if (check && repeat) {
-            FoundLog.d("Request too soon!");
+            catchException(msg, "Request too soon!");
             return true;
         }
         return false;

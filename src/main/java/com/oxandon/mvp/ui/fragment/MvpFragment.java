@@ -197,16 +197,16 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
     }
 
     protected void onMvpStart(final IMvpMessage msg, String path) {
-        String loading = msg.to().getParams(STR_LOADING, "");
+        String loading = msg.from().getParams(STR_LOADING, "");
         if (!TextUtils.isEmpty(loading)) {
-            boolean cancel = msg.to().getParams(BOOL_LOADING, false);
+            boolean cancel = msg.from().getParams(BOOL_LOADING, false);
             getHintView().showLoading(loading, cancel);
         }
     }
 
     @CallSuper
     protected void onMvpFinish(final IMvpMessage msg, String path) {
-        String loading = msg.to().getParams(STR_LOADING, "");
+        String loading = msg.from().getParams(STR_LOADING, "");
         if (!TextUtils.isEmpty(loading)) {
             getHintView().hideLoading();
         }
