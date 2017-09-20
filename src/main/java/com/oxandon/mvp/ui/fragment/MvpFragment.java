@@ -13,6 +13,7 @@ import com.oxandon.mvp.arch.impl.MvpMessage;
 import com.oxandon.mvp.arch.impl.MvpSdk;
 import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpView;
+import com.oxandon.mvp.env.FoundEnvironment;
 import com.oxandon.mvp.ui.activity.MvpActivity;
 import com.oxandon.mvp.ui.widget.AlertTemple;
 import com.oxandon.mvp.ui.widget.IHintView;
@@ -164,14 +165,23 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
 
     @Override
     public boolean function(IMvpMessage msg) {
-        boolean success = false;
-        if (null != MvpSdk.dispatcher()) {
-            success = MvpSdk.dispatcher().dispatchToPresenter(msg);
+        MvpMessage.Builder builder = null;
+        try {
+            if (null == MvpSdk.dispatcher()) throw new IllegalStateException("");
+            boolean success = MvpSdk.dispatcher().dispatchToPresenter(msg);
+            if (!success) throw new IllegalAccessException("请求出错");
+        } catch (Exception e) {
+            builder = new MvpMessage.Builder().clone(msg).msg(e.getMessage());
+            e.printStackTrace();
         }
-        if (!success) {
-            onMvpFinish(msg, msg.from().path());
+        if (null != builder) {
+            IMvpMessage failure = builder.build();
+            FoundEnvironment.log(failure.msg());
+            String path = failure.from().path();
+            onMvpFinish(failure, path);
+            onMvpFailure(failure, path);
         }
-        return success;
+        return null == builder;
     }
 
     @Override

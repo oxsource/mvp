@@ -3,14 +3,15 @@ package com.oxandon.mvp.arch.impl;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
+import com.oxandon.mvp.annotation.Controller;
+import com.oxandon.mvp.annotation.RequestMapping;
 import com.oxandon.mvp.arch.protocol.IMvpDispatcher;
 import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpPresenter;
 import com.oxandon.mvp.arch.protocol.IMvpUri;
+import com.oxandon.mvp.env.FoundEnvironment;
 import com.oxandon.mvp.except.CheckArgumentException;
 import com.oxandon.mvp.log.FoundLog;
-import com.oxandon.mvp.annotation.Controller;
-import com.oxandon.mvp.annotation.RequestMapping;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -126,7 +127,28 @@ public class MvpPresenter implements IMvpPresenter {
     protected void catchException(IMvpMessage msg, String text) {
         MvpMessage.Builder builder = new MvpMessage.Builder();
         builder.to(msg.from()).what(IMvpMessage.WHAT_FAILURE).msg(text);
-        dispatcher().dispatchToView(builder.build());
+        dispatchToView(builder.build());
+    }
+
+    public Object provideFromView(IMvpMessage msg) {
+        Object obj = null;
+        try {
+            obj = dispatcher().provideFromView(reverse(msg));
+        } catch (Exception e) {
+            e.printStackTrace();
+            FoundEnvironment.bug(e);
+        }
+        return null == obj ? new Object() : obj;
+    }
+
+    public boolean dispatchToView(IMvpMessage msg) {
+        try {
+            return dispatcher().dispatchToView(msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+            FoundEnvironment.bug(e);
+        }
+        return false;
     }
 
     /**

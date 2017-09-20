@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpView;
+import com.oxandon.mvp.env.FoundEnvironment;
 
 import io.reactivex.subscribers.DisposableSubscriber;
 
@@ -34,7 +35,11 @@ public class MvpSubscriber<T> extends DisposableSubscriber<T> {
         super.onStart();
         MvpMessage.Builder builder = new MvpMessage.Builder();
         IMvpMessage msg = builder.reverse(message()).what(IMvpMessage.WHAT_START).build();
-        presenter().dispatcher().dispatchToView(msg);
+        try {
+            presenter().dispatcher().dispatchToView(msg);
+        } catch (Exception e) {
+            FoundEnvironment.bug(e);
+        }
     }
 
     @CallSuper
@@ -53,7 +58,11 @@ public class MvpSubscriber<T> extends DisposableSubscriber<T> {
         }
         MvpMessage.Builder builder = new MvpMessage.Builder();
         builder.reverse(message()).what(IMvpMessage.WHAT_FAILURE).msg(text).obj(t);
-        presenter().dispatcher().dispatchToView(builder.build());
+        try {
+            presenter().dispatcher().dispatchToView(builder.build());
+        } catch (Exception e) {
+            FoundEnvironment.bug(e);
+        }
         doFinishedWork();
     }
 
@@ -65,7 +74,11 @@ public class MvpSubscriber<T> extends DisposableSubscriber<T> {
     private void sendFinishMsg() {
         MvpMessage.Builder builder = new MvpMessage.Builder();
         IMvpMessage msg = builder.reverse(message()).what(IMvpMessage.WHAT_FINISH).build();
-        presenter().dispatcher().dispatchToView(msg);
+        try {
+            presenter().dispatcher().dispatchToView(msg);
+        } catch (Exception e) {
+            FoundEnvironment.bug(e);
+        }
     }
 
     protected void doFinishedWork() {

@@ -5,7 +5,7 @@ package com.oxandon.mvp.arch.protocol;
  * Created by peng on 2017/5/20.
  */
 
-public interface IMvpDispatcher extends IMvp{
+public interface IMvpDispatcher extends IMvp {
     /**
      * 与View层绑定
      *
@@ -26,7 +26,7 @@ public interface IMvpDispatcher extends IMvp{
      * @param msg
      * @return
      */
-    boolean dispatchToPresenter(IMvpMessage msg);
+    boolean dispatchToPresenter(IMvpMessage msg) throws Exception;
 
     /**
      * 派发消息至View
@@ -34,7 +34,7 @@ public interface IMvpDispatcher extends IMvp{
      * @param msg
      * @return
      */
-    boolean dispatchToView(IMvpMessage msg);
+    boolean dispatchToView(IMvpMessage msg) throws Exception;
 
     /**
      * 从View层获取数据
@@ -42,5 +42,5 @@ public interface IMvpDispatcher extends IMvp{
      * @param msg
      * @return
      */
-    Object provideFromView(IMvpMessage msg);
+    Object provideFromView(IMvpMessage msg) throws Exception;
 }

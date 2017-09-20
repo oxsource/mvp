@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 import com.meituan.android.walle.WalleChannelReader;
 import com.oxandon.mvp.log.FoundLog;
+import com.oxandon.mvp.log.MvpLogHandler;
 
 /**
  * Created by peng on 2017/5/20.
@@ -17,6 +19,7 @@ public class FoundEnvironment {
     private static Application application;
     private static String nameOfEnvironment;
     private static boolean isDebug;
+    private static MvpLogHandler logHandler;
 
     /**
      * 注入应用程序
@@ -114,6 +117,15 @@ public class FoundEnvironment {
         getApplication().startActivity(intent);
     }
 
+    /**
+     * 日志回调
+     *
+     * @param handler
+     */
+    public static void setLogHandler(MvpLogHandler handler) {
+        logHandler = handler;
+    }
+
     //检查是否存在指定包名
     public static boolean existPackage(String pkg) {
         try {
@@ -127,5 +139,23 @@ public class FoundEnvironment {
 
     public static void destroy() {
         android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
+    public static void log(String log) {
+        if (null != logHandler) {
+            logHandler.log(log);
+        }
+    }
+
+    public static void bug(Exception e) {
+        String error = "程序运行异常";
+        if (null != e) {
+            error = e.getMessage();
+        }
+        Toast.makeText(FoundEnvironment.getApplication(), error, Toast.LENGTH_SHORT).show();
+        if (null != logHandler) {
+            logHandler.bug(e);
+        }
+        FoundEnvironment.destroy();
     }
 }
