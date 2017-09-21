@@ -22,6 +22,20 @@ public final class MvpMessage implements IMvpMessage {
         return toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof MvpMessage) {
+            MvpMessage msg = (MvpMessage) obj;
+            boolean sameFrom = msg.from().path().equals(from().path());
+            boolean sameTo = msg.to().path().equals(to().path());
+            return sameFrom && sameTo;
+        }
+        return false;
+    }
+
     public static class Builder {
         private int what;
         private String msg;

@@ -28,10 +28,15 @@ import io.reactivex.subscribers.DisposableSubscriber;
  * Created by peng on 2017/5/20.
  */
 public class MvpPresenter implements IMvpPresenter {
+    private static long LAST_REPEAT_MS = 2000;
+
     private Map<String, Method> services = new HashMap<>();
     private List<String> tasking = new ArrayList<>();
     private IMvpDispatcher dispatcher;
     private CompositeDisposable composite;
+    private final List<IMvpMessage> taskQueue = new ArrayList<>();
+
+    private long lastRepeatMs = 0;
 
     public MvpPresenter(IMvpDispatcher dispatcher) {
         this.dispatcher = dispatcher;
@@ -45,18 +50,36 @@ public class MvpPresenter implements IMvpPresenter {
         composite = new CompositeDisposable();
     }
 
+    public List<IMvpMessage> getTaskQueue() {
+        return taskQueue;
+    }
+
     @CallSuper
     @Override
     public boolean onIntercept(IMvpMessage msg) throws Exception {
         IMvpUri uri = msg.to();
         boolean check = uri.getParams(REPEAT_CHECK, true);
+        if (!check) {
+            return false;
+        }
         String path = msg.to().path();
         boolean repeat = tasking.contains(path);
-        if (check && repeat) {
-            catchException(msg, "Request too soon!");
-            return true;
+        if (!repeat) {
+            return false;
         }
-        return false;
+        if (msg.from().getParams(REPEAT_QUEUE, false)) {
+            if (taskQueue.contains(msg)) {
+                taskQueue.remove(msg);
+            }
+            taskQueue.add(msg);
+        } else {
+            long ms = System.currentTimeMillis();
+            if ((ms - lastRepeatMs) > LAST_REPEAT_MS) {
+                catchException(msg, "Request too soon!");
+            }
+            lastRepeatMs = ms;
+        }
+        return true;
     }
 
     @Override
@@ -107,6 +130,7 @@ public class MvpPresenter implements IMvpPresenter {
         composite.dispose();
         services.clear();
         tasking.clear();
+        taskQueue.clear();
         //防止双向引用
         dispatcher = null;
     }
@@ -122,7 +146,7 @@ public class MvpPresenter implements IMvpPresenter {
 
     protected void catchException(IMvpMessage msg, String text) {
         MvpMessage.Builder builder = new MvpMessage.Builder();
-        builder.to(msg.from()).what(IMvpMessage.WHAT_FAILURE).msg(text);
+        builder.clone(msg).what(IMvpMessage.WHAT_FAILURE).msg(text);
         dispatcher().dispatchToView(builder.build());
     }
 

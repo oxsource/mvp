@@ -6,6 +6,7 @@ package com.oxandon.mvp.arch.protocol;
 
 public interface IMvpPresenter extends IMvp {
     String REPEAT_CHECK = "repeat_check";
+    String REPEAT_QUEUE = "repeat_queue";//任务队列
 
     /**
      * 拦截请求消息

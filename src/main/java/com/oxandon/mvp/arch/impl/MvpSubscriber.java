@@ -5,8 +5,11 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.oxandon.mvp.arch.protocol.IMvpMessage;
+import com.oxandon.mvp.arch.protocol.IMvpPresenter;
 import com.oxandon.mvp.arch.protocol.IMvpView;
 import com.oxandon.mvp.env.MvpEvent;
+
+import java.util.List;
 
 import io.reactivex.subscribers.DisposableSubscriber;
 
@@ -79,10 +82,22 @@ public class MvpSubscriber<T> extends DisposableSubscriber<T> {
 
     protected void doFinishedWork() {
         IMvpMessage msg = message();
+        List<IMvpMessage> tasks = presenter().getTaskQueue();
+        IMvpPresenter pst = tasks.contains(msg) ? presenter() : null;
         try {
             presenter().removeTask(message());
             message = null;
             presenter = null;
+        } catch (Exception e) {
+            MvpEvent.exceptCast(msg, e);
+        }
+        //存在重复请求时执行上次缓存
+        if (null == pst) {
+            return;
+        }
+        tasks.remove(msg);
+        try {
+            pst.distribute(msg);
         } catch (Exception e) {
             MvpEvent.exceptCast(msg, e);
         }

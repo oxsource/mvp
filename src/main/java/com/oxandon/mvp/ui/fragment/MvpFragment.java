@@ -160,8 +160,7 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
         MvpMessage.Builder builder = null;
         try {
             if (null == MvpSdk.dispatcher()) throw new IllegalStateException("");
-            boolean success = MvpSdk.dispatcher().dispatchToPresenter(msg);
-            if (!success) throw new IllegalAccessException("请求出错");
+            MvpSdk.dispatcher().dispatchToPresenter(msg);
         } catch (Exception e) {
             e.printStackTrace();
             builder = new MvpMessage.Builder().clone(msg).msg(e.getMessage());
