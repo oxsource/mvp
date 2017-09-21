@@ -10,6 +10,7 @@ import com.oxandon.mvp.arch.protocol.IMvpMessage;
 import com.oxandon.mvp.arch.protocol.IMvpPresenter;
 import com.oxandon.mvp.arch.protocol.IMvpUri;
 import com.oxandon.mvp.except.CheckArgumentException;
+import com.oxandon.mvp.log.FoundLog;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -54,6 +55,11 @@ public class MvpPresenter implements IMvpPresenter {
         return taskQueue;
     }
 
+    @NonNull
+    protected String whenRepeatNote() {
+        return "请求太快啦";
+    }
+
     @CallSuper
     @Override
     public boolean onIntercept(IMvpMessage msg) throws Exception {
@@ -75,10 +81,11 @@ public class MvpPresenter implements IMvpPresenter {
         } else {
             long ms = System.currentTimeMillis();
             if ((ms - lastRepeatMs) > LAST_REPEAT_MS) {
-                catchException(msg, "Request too soon!");
+                catchException(msg, whenRepeatNote());
             }
             lastRepeatMs = ms;
         }
+        FoundLog.d("Request too soon!");
         return true;
     }
 
@@ -101,7 +108,7 @@ public class MvpPresenter implements IMvpPresenter {
         } catch (Exception e) {
             removeTask(msg);
             e.printStackTrace();
-            catchException(msg, "500 Server error");
+            catchException(msg, "500 service error");
         }
         return false;
     }
