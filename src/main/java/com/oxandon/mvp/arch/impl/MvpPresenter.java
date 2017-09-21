@@ -142,10 +142,6 @@ public class MvpPresenter implements IMvpPresenter {
         dispatcher = null;
     }
 
-    protected IMvpMessage reverse(IMvpMessage msg) {
-        return msg;
-    }
-
     protected <T> void doRxSubscribe(@NonNull Flowable<T> flow, @NonNull DisposableSubscriber<T> subscriber) {
         flow.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
         composite.add(subscriber);
