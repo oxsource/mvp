@@ -80,7 +80,7 @@ public class MvpDispatcher implements IMvpDispatcher {
             throw new IllegalStateException("presenter is null:" + presenterKey);
         }
         List<IMvpPresenter> list = presenters.get(viewKey);
-        list = null == list ? new ArrayList<IMvpPresenter>() : list;
+        list = null == list ? new ArrayList<>() : list;
         IMvpPresenter presenter = null;
         for (IMvpPresenter p : list) {
             if (p.getClass() == clazz) {

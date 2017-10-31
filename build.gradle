@@ -53,7 +53,7 @@ dependencies {
     api "com.squareup.retrofit2:retrofit-adapters:${RETROFIT_VERSION}"
     api "com.squareup.retrofit2:adapter-rxjava2:${RETROFIT_VERSION}"
     //SERIALIZATION
-    implementation "org.ligboy.retrofit2:converter-fastjson-android:${FASTJSON_ANDROID_VERSION}"
+    api "org.ligboy.retrofit2:converter-fastjson-android:${FASTJSON_ANDROID_VERSION}"
     //EVENT BUS
     api "org.greenrobot:eventbus:${EVENTBUS_VERSION}"
     //Android Signature V2 Scheme channel

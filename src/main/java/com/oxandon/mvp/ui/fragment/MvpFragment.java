@@ -1,5 +1,6 @@
 package com.oxandon.mvp.ui.fragment;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
@@ -51,6 +52,39 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
         return layout;
     }
 
+    @CallSuper
+    @Override
+    public void onResume() {
+        super.onResume();
+        visibility().onResume();
+    }
+
+    @CallSuper
+    @Override
+    public void onPause() {
+        visibility().onPause();
+        super.onPause();
+    }
+
+    @CallSuper
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (null != MvpSdk.dispatcher()) {
+            MvpSdk.dispatcher().detach(this);
+        }
+        layout = null;
+    }
+
+    @CallSuper
+    @Override
+    public void onDestroy() {
+        getFoundActivity().removeFromInterceptor(this);
+        visibility().destroy();
+        getEventBus().unregister(this);
+        super.onDestroy();
+    }
+
     protected FragmentVisibility visibility() {
         if (null == visibility) {
             visibility = new FragmentVisibility(this);
@@ -95,20 +129,6 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
         visibility().setUserVisibleHint(isVisibleToUser);
     }
 
-    @CallSuper
-    @Override
-    public void onResume() {
-        super.onResume();
-        visibility().onResume();
-    }
-
-    @CallSuper
-    @Override
-    public void onPause() {
-        visibility().onPause();
-        super.onPause();
-    }
-
     /**
      * 使用hide,replace方式
      *
@@ -134,25 +154,6 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
     @Override
     public final MvpFragment fragment() {
         return this;
-    }
-
-    @CallSuper
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (null != MvpSdk.dispatcher()) {
-            MvpSdk.dispatcher().detach(this);
-        }
-        layout = null;
-    }
-
-    @CallSuper
-    @Override
-    public void onDestroy() {
-        getFoundActivity().removeFromInterceptor(this);
-        visibility().destroy();
-        getEventBus().unregister(this);
-        super.onDestroy();
     }
 
     @Override
@@ -199,7 +200,15 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
         String loading = msg.from().getParams(STR_LOADING, "");
         if (!TextUtils.isEmpty(loading)) {
             boolean cancel = msg.from().getParams(BOOL_LOADING, false);
-            getHintView().showLoading(loading, cancel);
+            DialogInterface.OnCancelListener listener = !cancel ? null : dialog -> {
+                IMvpMessage cancelMsg = new MvpMessage.Builder()
+                        .clone(msg)
+                        .what(IMvpMessage.WHAT_FINISH)
+                        .build();
+                function(cancelMsg);
+
+            };
+            getHintView().showLoading(loading, listener);
         }
     }
 

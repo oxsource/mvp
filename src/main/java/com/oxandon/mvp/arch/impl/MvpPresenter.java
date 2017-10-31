@@ -15,12 +15,14 @@ import com.oxandon.mvp.log.FoundLog;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.DisposableSubscriber;
 
@@ -30,13 +32,10 @@ import io.reactivex.subscribers.DisposableSubscriber;
  */
 public class MvpPresenter implements IMvpPresenter {
     private static long LAST_REPEAT_MS = 2000;
-
     private Map<String, Method> services = new HashMap<>();
-    private List<String> tasking = new ArrayList<>();
     private IMvpDispatcher dispatcher;
-    private CompositeDisposable composite;
     private final List<IMvpMessage> taskQueue = new ArrayList<>();
-
+    private Map<String, Disposable> disposables = new LinkedHashMap<>();
     private long lastRepeatMs = 0;
 
     public MvpPresenter(IMvpDispatcher dispatcher) {
@@ -48,7 +47,6 @@ public class MvpPresenter implements IMvpPresenter {
                 services.put(mapping.value(), m);
             }
         }
-        composite = new CompositeDisposable();
     }
 
     public List<IMvpMessage> getTaskQueue() {
@@ -69,7 +67,7 @@ public class MvpPresenter implements IMvpPresenter {
             return false;
         }
         String path = msg.to().path();
-        boolean repeat = tasking.contains(path);
+        boolean repeat = disposables.containsKey(path);
         if (!repeat) {
             return false;
         }
@@ -91,6 +89,12 @@ public class MvpPresenter implements IMvpPresenter {
 
     @Override
     public boolean distribute(IMvpMessage msg) throws Exception {
+        if (msg.what() == IMvpMessage.WHAT_FINISH) {
+            //请求取消
+            removeTask(msg);
+            return true;
+        }
+        //发起请求
         boolean intercepted = onIntercept(msg);
         if (intercepted) {
             return false;
@@ -102,7 +106,7 @@ public class MvpPresenter implements IMvpPresenter {
             return false;
         }
         try {
-            tasking.add(path);
+            disposables.put(path, null);
             method.invoke(this, msg);
             return true;
         } catch (Exception e) {
@@ -117,7 +121,13 @@ public class MvpPresenter implements IMvpPresenter {
     public void removeTask(IMvpMessage message) {
         if (null != message && null != message.to()) {
             String path = message.to().path();
-            tasking.remove(path);
+            if (disposables.containsKey(path)) {
+                Disposable disposable = disposables.get(path);
+                if (null != disposable && !disposable.isDisposed()) {
+                    disposable.dispose();
+                }
+                disposables.remove(path);
+            }
         }
     }
 
@@ -134,17 +144,23 @@ public class MvpPresenter implements IMvpPresenter {
 
     @Override
     public void destroy() {
-        composite.dispose();
+        Iterator<Map.Entry<String, Disposable>> iterator = disposables.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Disposable disposable = iterator.next().getValue();
+            if (!disposable.isDisposed()) {
+                disposable.dispose();
+            }
+        }
+        disposables.clear();
         services.clear();
-        tasking.clear();
         taskQueue.clear();
         //防止双向引用
         dispatcher = null;
     }
 
-    protected <T> void doRxSubscribe(@NonNull Flowable<T> flow, @NonNull DisposableSubscriber<T> subscriber) {
+    protected <T> void doRxSubscribe(IMvpMessage msg, @NonNull Flowable<T> flow, @NonNull DisposableSubscriber<T> subscriber) {
         flow.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
-        composite.add(subscriber);
+        disposables.put(msg.to().path(), subscriber);
     }
 
     protected void catchException(IMvpMessage msg, String text) {
