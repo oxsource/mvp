@@ -99,7 +99,7 @@ public class NetworkUtil {
     }
 
     public static String getIPAddress() {
-        Context context = FoundEnvironment.getApplication();
+        Application context = FoundEnvironment.getApplication();
         Object obj = context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (!(obj instanceof ConnectivityManager)) {
             return "";
@@ -123,7 +123,7 @@ public class NetworkUtil {
                     }
                 }
             } else if (info.getType() == ConnectivityManager.TYPE_WIFI) {
-                WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                 WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                 if (null != wifiInfo) {
                     ipAddress = intIP2StringIP(wifiInfo.getIpAddress());

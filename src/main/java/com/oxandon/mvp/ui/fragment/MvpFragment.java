@@ -225,12 +225,9 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
 
     protected void onMvpPermission(final IMvpMessage msg, String path) {
         AlertTemple alert = new AlertTemple("提示", msg.msg());
-        alert.setPositiveClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MvpMessage.Builder builder = new MvpMessage.Builder();
-                function(builder.clone(msg).build());
-            }
+        alert.setPositiveClick(v -> {
+            MvpMessage.Builder builder = new MvpMessage.Builder();
+            function(builder.clone(msg).build());
         });
         getHintView().showAlert(alert, false);
     }

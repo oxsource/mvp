@@ -155,9 +155,6 @@ public class MvpPresenter implements IMvpPresenter {
 
     /**
      * 检查参数，如果illegal为TRUE则抛出CheckArgumentException
-     *
-     * @param illegal
-     * @param defaultMsg
      */
     protected void checkArgument(boolean illegal, @NonNull String defaultMsg) throws CheckArgumentException {
         if (illegal) {

@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion parent.ext.compileSdkVersion
+    buildToolsVersion parent.ext.buildToolsVersion
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 26
+        minSdkVersion parent.ext.minSdkVersion
+        targetSdkVersion parent.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -16,6 +16,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 
@@ -24,31 +28,35 @@ allprojects {
         jcenter()
         maven { url 'https://jitpack.io' }
     }
+    ext {
+
+    }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestApi('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:26.+'
-    compile 'com.android.support:support-v4:26.+'
+    testApi 'junit:junit:4.12'
+    api "com.android.support:appcompat-v7:${ANDROID_SUPPORT_VERSION}"
+    api "com.android.support:support-v4:${ANDROID_SUPPORT_VERSION}"
     //RxAndroid
-    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    api "io.reactivex.rxjava2:rxjava:${RXJAVA_VERSION}"
+    api "io.reactivex.rxjava2:rxandroid:${RXANDROID_VERSION}"
     //HTTP
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:retrofit-converters:2.3.0'
-    compile 'com.squareup.retrofit2:retrofit-adapters:2.3.0'
+    api "com.squareup.okhttp3:okhttp:${OKHTTP_VERSION}"
+    api "com.squareup.okhttp3:logging-interceptor:${OKHTTP_VERSION}"
+    //RETROFIT
+    api "com.squareup.retrofit2:retrofit:${RETROFIT_VERSION}"
+    api "com.squareup.retrofit2:retrofit-converters:${RETROFIT_VERSION}"
+    api "com.squareup.retrofit2:retrofit-adapters:${RETROFIT_VERSION}"
+    api "com.squareup.retrofit2:adapter-rxjava2:${RETROFIT_VERSION}"
     //SERIALIZATION
-    compile 'org.ligboy.retrofit2:converter-fastjson-android:2.1.0'
-    //EVENT BUS3.0
-    compile 'org.greenrobot:eventbus:3.0.0'
+    implementation "org.ligboy.retrofit2:converter-fastjson-android:${FASTJSON_ANDROID_VERSION}"
+    //EVENT BUS
+    api "org.greenrobot:eventbus:${EVENTBUS_VERSION}"
     //Android Signature V2 Scheme channel
-    compile 'com.meituan.android.walle:library:1.1.5'
-    compile 'com.github.oxsource:mvp-annotation:1.0.1'
+    implementation "com.meituan.android.walle:library:${WALLE_VERSION}"
+    api "com.github.oxsource:mvp-annotation:${MVP_ANNOTATION_VERSION}"
 }
