@@ -200,13 +200,15 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
         String loading = msg.from().getParams(STR_LOADING, "");
         if (!TextUtils.isEmpty(loading)) {
             boolean cancel = msg.from().getParams(BOOL_LOADING, false);
-            DialogInterface.OnCancelListener listener = !cancel ? null : dialog -> {
-                IMvpMessage cancelMsg = new MvpMessage.Builder()
-                        .clone(msg)
-                        .what(IMvpMessage.WHAT_FINISH)
-                        .build();
-                function(cancelMsg);
-
+            DialogInterface.OnCancelListener listener = !cancel ? null : new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialogInterface) {
+                    IMvpMessage cancelMsg = new MvpMessage.Builder()
+                            .clone(msg)
+                            .what(IMvpMessage.WHAT_FINISH)
+                            .build();
+                    function(cancelMsg);
+                }
             };
             getHintView().showLoading(loading, listener);
         }
