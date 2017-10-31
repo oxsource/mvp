@@ -39,5 +39,8 @@ Thumbs.db
 # Gradle cache
 .gradle
 gradle.properties
+gradle/
+gradlew
+gradlew.bat
 #NDK
 obj/
