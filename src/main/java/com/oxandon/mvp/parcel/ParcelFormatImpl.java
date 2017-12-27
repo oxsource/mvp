@@ -17,11 +17,11 @@ public class ParcelFormatImpl implements IParcelFormat {
     private final String NULL_SUPPLY = "supply is null";
 
     @Override
-    public ExceptionSupply<Map<String, String>> map(@NonNull Object object) {
-        ExceptionSupply<Map<String, String>> value;
+    public ExceptionSupply<Map<String, Object>> map(@NonNull Object object) {
+        ExceptionSupply<Map<String, Object>> value;
         try {
             String json = JSON.toJSONString(object);
-            Map<String, String> map = JSON.parseObject(json, new TypeReference<Map<String, String>>() {
+            Map<String, Object> map = JSON.parseObject(json, new TypeReference<Map<String, Object>>() {
             });
             value = supply(map);
         } catch (Exception e) {

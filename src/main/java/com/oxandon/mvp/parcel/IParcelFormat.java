@@ -10,7 +10,7 @@ import java.util.Map;
  */
 
 public interface IParcelFormat {
-    ExceptionSupply<Map<String, String>> map(@NonNull Object object);
+    ExceptionSupply<Map<String, Object>> map(@NonNull Object object);
 
     ExceptionSupply<String> string(@NonNull Object object);
 
