@@ -158,9 +158,10 @@ public class MvpPresenter implements IMvpPresenter {
         dispatcher = null;
     }
 
-    protected <T> void doRxSubscribe(IMvpMessage msg, @NonNull Flowable<T> flow, @NonNull DisposableSubscriber<T> subscriber) {
+    protected <T> void doRxSubscribe(@NonNull Flowable<T> flow, @NonNull MvpSubscriber<T> subscriber) {
+        String path = subscriber.message().to().path();
         flow.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
-        disposables.put(msg.to().path(), subscriber);
+        disposables.put(path, subscriber);
     }
 
     protected void catchException(IMvpMessage msg, String text) {
