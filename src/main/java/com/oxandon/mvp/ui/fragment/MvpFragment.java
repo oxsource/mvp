@@ -226,7 +226,8 @@ public abstract class MvpFragment extends Fragment implements IFragment, IMvpVie
     }
 
     protected void onMvpFailure(final IMvpMessage msg, String path) {
-        String errMsg = TextUtils.isEmpty(msg.msg()) ? "请求出错啦" : msg.msg();
+        String errMsg = msg.msg();
+        if (TextUtils.isEmpty(errMsg)) return;
         getHintView().showToast(errMsg, 0);
     }
 
